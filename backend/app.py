@@ -5,7 +5,7 @@ from transformers import pipeline
 app = Flask(__name__)
 CORS(app)
 
-classifier = pipeline("text-classification", model="mrm8488/bert-tiny-finetuned-fake-news")
+classifier = pipeline("text-classification", model="microsoft/deberta-base-mnli")
 
 @app.route('/')
 def home():
@@ -17,12 +17,29 @@ def predict():
     text = data.get("text", "")
     if not text:
         return jsonify({"error": "No text provided"}), 400
-    result = classifier(text)[0]
-    label = result["label"]
+
+    # Use NLI: Premise = input text, Hypothesis = "This article is real news."
+    result = classifier({
+        "premise": text,
+        "hypothesis": "This article is real news."
+    })[0]
+
+    label = result["label"]  # 'ENTAILMENT', 'NEUTRAL', or 'CONTRADICTION'
     score = float(result["score"])
-    reasoning = f"This article is predicted as {label} with a confidence score of {score:.2f}."
+    if label == "ENTAILMENT":
+        prediction = "REAL"
+    elif label == "CONTRADICTION":
+        prediction = "FAKE"
+    else:
+        prediction = "UNCERTAIN"
+
+    reasoning = (
+        f"The model predicts this article is '{prediction}' "
+        f"(NLI label: {label}, confidence: {score:.2f})."
+    )
+
     return jsonify({
-        "prediction": label,
+        "prediction": prediction,
         "confidence": score,
         "reasoning": reasoning
     })
