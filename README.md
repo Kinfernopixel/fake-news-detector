@@ -16,6 +16,6 @@ Paste a news article and get an instant AI-powered prediction of whether it's li
 - **Backend:** Python, Flask, HuggingFace Transformers (BERT/DistilBERT)
 - **Frontend:** React.js
 
-![Fake News Detector Screenshot](./frontend/src/assets/Demo_image.png.png)
+![Fake News Detector Screenshot](frontend/src/assets/Demo_image.png.png)
 
 
